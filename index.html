@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Enhanced Coptic Manuscript Analysis (ACMA)</title>
+    <style>
+        :root {
+            --primary: #2a3f5f;
+            --secondary: #4f7cac;
+            --accent: #c25e30;
+            --light: #f5f7fa;
+            --dark: #1a2639;
+            --text: #333;
+            --text-light: #666;
+            --success: #3e8914;
+            --border: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--light);
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin: 1.5rem 0 1rem;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 0.5rem;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin: 1rem 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        @media (min-width: 768px) {
+            .grid-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .grid-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 2rem;
+            border: 2px solid var(--secondary);
+        }
+        
+        .process-flow {
+            margin: 3rem 0;
+        }
+        
+        .timeline {
+            position: relative;
+            margin: 3rem 0;
+            padding: 1rem 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--secondary);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+        
+        .timeline-item {
+            padding: 1rem 2rem;
+            position: relative;
+            width: 50%;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid var(--accent);
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        
+        .timeline-left {
+            left: 0;
+            text-align: right;
+        }
+        
+        .timeline-right {
+            left: 50%;
+        }
+        
+        .timeline-left::after {
+            right: -10px;
+        }
+        
+        .timeline-right::after {
+            left: -10px;
+        }
+        
+        .footer {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        ul {
+            list-style-type: none;
+        }
+        
+        ul li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        ul li::before {
+            content: "•";
+            color: var(--accent);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+        
+        .diagram {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem auto;
+            display: block;
+            background-color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .accent {
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background-color: var(--secondary);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin: 0.25rem;
+        }
+        
+        .partner-section {
+            margin: 2rem 0;
+        }
+        
+        .highlight-box {
+            background-color: rgba(79, 124, 172, 0.1);
+            border-left: 4px solid var(--secondary);
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        /* SVG Diagram Styles */
+        .svg-diagram {
+            margin: 2rem auto;
+            display: block;
+        }
+
+        /* Coptic font for the header accent */
+        .coptic-accent {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AI-Enhanced Coptic Manuscript Analysis (ACMA)</h1>
+        <p>Integrating AI technologies for Coptic manuscript transcription, analysis, and digital editions</p>
+    </header>
+    
+    <div class="container">
+        <div class="highlight-box">
+            <h2>Project Overview</h2>
+            <p>The ACMA project aims to develop an integrated framework for computational analysis, transcription, and digital edition of Coptic manuscripts using advanced artificial intelligence. By combining Thoth AI, HTR models, OCR technologies, and linguistic analysis tools, we will significantly reduce manual work while improving accuracy in Coptic studies.</p>
+        </div>
+        
+        <!-- Project Architecture Diagram -->
+        <h2>Project Architecture</h2>
+        <svg class="svg-diagram" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background grid -->
+            <defs>
+                <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+                    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(128,128,128,0.1)" stroke-width="0.5"/>
+                </pattern>
+                <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+                    <rect width="100" height="100" fill="url(#smallGrid)"/>
+                    <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(128,128,128,0.2)" stroke-width="1"/>
+                </pattern>
+            </defs>
+            <rect width="800" height="400" fill="url(#grid)" />
+            
+            <!-- Main Components -->
+            <!-- Manuscript Resources -->
+            <rect x="50" y="50" width="150" height="80" rx="10" fill="#f5f7fa" stroke="#2a3f5f" stroke-width="2"/>
+            <text x="125" y="85" text-anchor="middle" font-size="14" font-weight="bold">Manuscript Images</text>
+            <text x="125" y="105" text-anchor="middle" font-size="12">CoptOT Corpus</text>
+            
+            <!-- AI Processing Layer -->
+            <rect x="250" y="20" width="300" height="140" rx="10" fill="#e6eef7" stroke="#4f7cac" stroke-width="2"/>
+            <text x="400" y="40" text-anchor="middle" font-size="16" font-weight="bold">AI Processing Layer</text>
+            
+            <!-- AI Components -->
+            <rect x="270" y="60" width="80" height="60" rx="5" fill="#2a3f5f" stroke="#1a2639" stroke-width="1"/>
+            <text x="310" y="90" text-anchor="middle" font-size="12" fill="white">Thoth AI</text>
+            
+            <rect x="360" y="60" width="80" height="60" rx="5" fill="#2a3f5f" stroke="#1a2639" stroke-width="1"/>
+            <text x="400" y="90" text-anchor="middle" font-size="12" fill="white">HTR Models</text>
+            
+            <rect x="450" y="60" width="80" height="60" rx="5" fill="#2a3f5f" stroke="#1a2639" stroke-width="1"/>
+            <text x="490" y="85" text-anchor="middle" font-size="12" fill="white">OCR4all &</text>
+            <text x="490" y="100" text-anchor="middle" font-size="12" fill="white">eScriptorium</text>
+            
+            <!-- Integration Layer -->
+            <rect x="250" y="180" width="300" height="80" rx="10" fill="#f9e9df" stroke="#c25e30" stroke-width="2"/>
+            <text x="400" y="215" text-anchor="middle" font-size="16" font-weight="bold">Integration Framework</text>
+            <text x="400" y="240" text-anchor="middle" font-size="12">VMR + APIs + Unified UI</text>
+            
+            <!-- Processing Outputs -->
+            <rect x="600" y="50" width="150" height="80" rx="10" fill="#f5f7fa" stroke="#2a3f5f" stroke-width="2"/>
+            <text x="675" y="85" text-anchor="middle" font-size="14" font-weight="bold">Linguistic Analysis</text>
+            <text x="675" y="105" text-anchor="middle" font-size="12">Lemmatization, PoS, etc.</text>
+            
+            <!-- Output Layer -->
+            <rect x="250" y="280" width="300" height="80" rx="10" fill="#e6f3e1" stroke="#3e8914" stroke-width="2"/>
+            <text x="400" y="315" text-anchor="middle" font-size="16" font-weight="bold">Digital Edition Pipeline</text>
+            <text x="400" y="340" text-anchor="middle" font-size="12">Publication-ready Digital Editions</text>
+            
+            <!-- Connection Arrows -->
+            <!-- Input to AI -->
+            <path d="M 200 90 L 250 90" stroke="#2a3f5f" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+            
+            <!-- AI to Integration -->
+            <path d="M 400 160 L 400 180" stroke="#4f7cac" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+            
+            <!-- AI to Linguistic -->
+            <path d="M 550 90 L 600 90" stroke="#2a3f5f" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+            
+            <!-- Linguistic back to Integration -->
+            <path d="M 675 130 L 675 220 L 550 220" stroke="#c25e30" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+            
+            <!-- Integration to Output -->
+            <path d="M 400 260 L 400 280" stroke="#c25e30" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+            
+            <!-- Define arrowhead -->
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#2a3f5f"/>
+                </marker>
+            </defs>
+        </svg>
+        
+        <div class="partner-section">
+            <h2>Project Partners</h2>
+            <div class="grid grid-3">
+                <div class="card icon-card">
+                    <div class="icon-circle">1</div>
+                    <h3>Partner 1</h3>
+                    <ul>
+                        <li>Thoth AI development & integration</li>
+                        <li>Text reuse detection</li>
+                        <li>GPU resources & LLM expertise</li>
+                        <li>Intertextual analysis tools</li>
+                    </ul>
+                </div>
+                
+                <div class="card icon-card">
+                    <div class="icon-circle">2</div>
+                    <h3>Partner 2</h3>
+                    <ul>
+                        <li>HTR with CoptOT material</li>
+                        <li>Lemmatizer & PoS-tagger development</li>
+                        <li>VMR, eScriptorium & OCR4all integration</li>
+                        <li>AI-assisted transcription expertise</li>
+                    </ul>
+                </div>
+                
+                <div class="card icon-card">
+                    <div class="icon-circle">3</div>
+                    <h3>Partner 3</h3>
+                    <ul>
+                        <li>AI-powered indexing & collation</li>
+                        <li>Münster pilot project expertise</li>
+                        <li>Pedagogical methodology</li>
+                        <li>Quality assurance coordination</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technical Workflow Diagram -->
+        <h2>Technical Workflow</h2>
+        <svg class="svg-diagram" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+            <!-- Background -->
+            <rect width="800" height="300" fill="#f5f7fa" rx="10"/>
+            
+            <!-- Workflow Steps -->
+            <!-- Step 1: Manuscript Images -->
+            <rect x="40" y="40" width="120" height="80" rx="8" fill="white" stroke="#4f7cac" stroke-width="2"/>
+            <text x="100" y="70" text-anchor="middle" font-size="14" font-weight="bold">Manuscript</text>
+            <text x="100" y="90" text-anchor="middle" font-size="14" font-weight="bold">Images</text>
+            
+            <!-- Step 2: AI Processing -->
+            <rect x="200" y="40" width="120" height="80" rx="8" fill="white" stroke="#4f7cac" stroke-width="2"/>
+            <text x="260" y="65" text-anchor="middle" font-size="14" font-weight="bold">AI</text>
+            <text x="260" y="85" text-anchor="middle" font-size="14" font-weight="bold">Processing</text>
+            <text x="260" y="105" text-anchor="middle" font-size="12">(HTR/OCR)</text>
+            
+            <!-- Step 3: Initial Transcription -->
+            <rect x="360" y="40" width="120" height="80" rx="8" fill="white" stroke="#4f7cac" stroke-width="2"/>
+            <text x="420" y="65" text-anchor="middle" font-size="14" font-weight="bold">Initial</text>
+            <text x="420" y="85" text-anchor="middle" font-size="14" font-weight="bold">Transcription</text>
+            
+            <!-- Step 4: Linguistic Analysis -->
+            <rect x="520" y="40" width="120" height="80" rx="8" fill="white" stroke="#4f7cac" stroke-width="2"/>
+            <text x="580" y="65" text-anchor="middle" font-size="14" font-weight="bold">Linguistic</text>
+            <text x="580" y="85" text-anchor="middle" font-size="14" font-weight="bold">Analysis</text>
+            
+            <!-- Step 5: Human Verification -->
+            <rect x="680" y="40" width="120" height="80" rx="8" fill="white" stroke="#4f7cac" stroke-width="2"/>
+            <text x="740" y="65" text-anchor="middle" font-size="14" font-weight="bold">Human</text>
+            <text x="740" y="85" text-anchor="middle" font-size="14" font-weight="bold">Verification</text>
+            
+            <!-- Step 6: Digital Edition -->
+            <rect x="360" y="160" width="120" height="80" rx="8" fill="#2a3f5f" stroke="#1a2639" stroke-width="2"/>
+            <text x="420" y="185" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Digital</text>
+            <text x="420" y="205" text-anchor="middle" font-size="14" font-weight="bold" fill="white">Edition</text>
+            <text x="420" y="225" text-anchor="middle" font-size="12" fill="white">Publication</text>
+            
+            <!-- Connection Arrows -->
+            <path d="M 160 80 L 200 80" stroke="#4f7cac" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            <path d="M 320 80 L 360 80" stroke="#4f7cac" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            <path d="M 480 80 L 520 80" stroke="#4f7cac" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            <path d="M 640 80 L 680 80" stroke="#4f7cac" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            <path d="M 740 120 L 740 200 L 480 200" stroke="#4f7cac" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+            
+            <!-- Feedback loop -->
+            <path d="M 580 120 C 580 150, 320 150, 320 120" stroke="#c25e30" stroke-width="2" stroke-dasharray="5,3" fill="none" marker-end="url(#arrow2)"/>
+            <text x="450" y="145" text-anchor="middle" font-size="12" fill="#c25e30">AI Learning Feedback Loop</text>
+            
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#4f7cac"/>
+                </marker>
+                <marker id="arrow2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#c25e30"/>
+                </marker>
+            </defs>
+        </svg>
+        
+        <h2>Project Timeline</h2>
+        <div class="timeline">
+            <div class="timeline-item timeline-left">
+                <h3>Year 1: Foundation (2025)</h3>
+                <ul>
+                    <li>Project setup & system architecture</li>
+                    <li>Initial Thoth AI/VMR integration</li>
+                    <li>HTR model training with CoptOT</li>
+                    <li>Lemmatizer & PoS-tagger enhancement</li>
+                </ul>
+            </div>
+            
+            <div class="timeline-item timeline-right">
+                <h3>Year 2: Development (2026)</h3>
+                <ul>
+                    <li>AI-powered transcription pipeline</li>
+                    <li>eScriptorium & OCR4all integration</li>
+                    <li>Collation alignment tools</li>
+                    <li>Mid-project evaluation & refinement</li>
+                </ul>
+            </div>
+            
+            <div class="timeline-item timeline-left">
+                <h3>Year 3: Finalization (2027)</h3>
+                <ul>
+                    <li>Text reuse & intertextual analysis</li>
+                    <li>Digital edition publication templates</li>
+                    <li>Comprehensive testing & evaluation</li>
+                    <li>Documentation & sustainability planning</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>Key Innovations & Improvements</h2>
+        <div class="grid grid-2">
+            <div class="card">
+                <h3>Technical Advancements</h3>
+                <ul>
+                    <li>Integration of Thoth AI with established HTR/OCR tools</li>
+                    <li>Enhanced lemmatizer & PoS-tagger models extending Coptic SCRIPTORIUM work</li>
+                    <li>OCR4all integration alongside eScriptorium for optimal results</li>
+                    <li>Automated collation alignment between languages</li>
+                    <li>Text reuse detection capabilities for intertextual analysis</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>Scholarly Benefits</h3>
+                <ul>
+                    <li>Significant reduction in manual transcription work</li>
+                    <li>Preservation of pedagogical benefits for students</li>
+                    <li>High-quality digital editions of Coptic manuscripts</li>
+                    <li>Continuation & extension of Coptic SCRIPTORIUM's valuable work</li>
+                    <li>Sustainable framework for future Coptic digital humanities</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="highlight-box">
+            <h2>Addressing Specific Concerns</h2>
+            <div class="grid grid-2">
+                <div>
+                    <h3><span class="accent">GPU Resources</span></h3>
+                    <p>Assessment of available resources across partner institutions with plans for additional computing resources through partnerships or grants.</p>
+                    
+                    <h3><span class="accent">OCR4all Integration</span></h3>
+                    <p>Full integration of Eliese's model based on OCR4all alongside eScriptorium to maximize transcription accuracy.</p>
+                </div>
+                
+                <div>
+                    <h3><span class="accent">Funk Dataset</span></h3>
+                    <p>Early evaluation of dataset scope with plans to extend as necessary for comprehensive model training.</p>
+                    
+                    <h3><span class="accent">Coptic SCRIPTORIUM Continuation</span></h3>
+                    <p>Project explicitly builds upon and extends Coptic SCRIPTORIUM's work, preserving progress despite uncertain funding environments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <h2>AI-Enhanced Coptic Manuscript Analysis (ACMA)</h2>
+        <p>A collaborative project for advancing Coptic studies through artificial intelligence</p>
+        <p style="margin-top: 1rem;">© 2025-2027 | Contact: project@acma-coptic.org</p>
+    </div>
+</body>
+</html>
